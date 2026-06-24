@@ -259,10 +259,14 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
           elif [ "${{ inputs.kernelsu_variant }}" == "SukiSU" ]; then
             echo "Adding KernelSU SukiSU..."
-            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh"             # Patch sulog/event.c USER_ARG_NULL macro (builtin branch bug)
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash $BRANCH
+            cd KernelSU
+            # Patch sulog/event.c USER_ARG_NULL macro (builtin branch bug)
             EVENT_C=$(find . -path '*kernel/sulog/event.c' -print -quit)
             if [ -n "$EVENT_C" ]; then
-              sed -i 's| bash $BRANCH
+              sed -i 's|#define USER_ARG_NULL user_arg_null_ptr()|#define USER_ARG_NULL (*user_arg_null_ptr())|' "$EVENT_C"
+              echo "patched sulog: $EVENT_C"
+            fi
           fi
 
       - name: 添加 Baseband-guard 支持
