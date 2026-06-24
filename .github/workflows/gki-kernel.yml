@@ -598,9 +598,11 @@ jobs:
 
             sed -i '/KMI_SYMBOL_LIST_STRICT_MODE/d' common/build.config.gki.aarch64
 
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq gcc g++
             echo "Building the kernel..."
             if [ -f "build/build.sh" ]; then
-              LTO=thin HOSTCC=gcc HOSTLD=gcc HOSTCFLAGS="-w" BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="/usr/bin/ccache clang" || exit 1
+              LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="/usr/bin/ccache clang" || exit 1
             else
               tools/bazel build --disk_cache=/home/runner/.cache/bazel --config=fast --lto=thin //common:kernel_aarch64_dist || exit 1
             fi
