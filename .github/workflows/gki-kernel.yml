@@ -352,6 +352,7 @@ jobs:
 
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_DISABLE_MANAGER=y" >> ./common/arch/arm64/configs/gki_defconfig  # skip sulog: incompat with 5.10.157
           # echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
