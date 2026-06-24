@@ -220,6 +220,15 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash $BRANCH
             cd KernelSU
             git revert -m 1 $(git log --grep="KSU_SUKISU" --pretty=format:"%h") -n || true
+            # Patch sulog/event.c: USER_ARG_NULL passes pointer to a value param
+            EVENT_C=$(find . -path '*kernel/sulog/event.c' -print -quit)
+            if [ -n "$EVENT_C" ]; then
+              sed -i 's|#define USER_ARG_NULL user_arg_null_ptr()|#define USER_ARG_NULL (*user_arg_null_ptr())|' "$EVENT_C"
+              echo "patched: $EVENT_C"
+              grep -n "USER_ARG_NULL" "$EVENT_C" || true
+            else
+              echo "WARN: kernel/sulog/event.c not found, skipping patch"
+            fi
             # git revert -m 1 $(git log --grep="remove devpts hook" --pretty=format:"%h") -n
           fi
 
@@ -352,7 +361,6 @@ jobs:
 
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_DISABLE_MANAGER=y" >> ./common/arch/arm64/configs/gki_defconfig  # skip sulog: incompat with 5.10.157
           # echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
